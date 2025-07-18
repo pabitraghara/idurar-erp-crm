@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Divider } from 'antd';
+import { Divider, message, Modal } from 'antd';
 
 import { Button, Row, Col, Descriptions, Statistic, Tag } from 'antd';
 import { PageHeader } from '@ant-design/pro-layout';
@@ -9,6 +9,7 @@ import {
   CloseCircleOutlined,
   RetweetOutlined,
   MailOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -23,16 +24,31 @@ import { DOWNLOAD_BASE_URL } from '@/config/serverApiConfig';
 import { useMoney, useDate } from '@/settings';
 import useMail from '@/hooks/useMail';
 import { useNavigate } from 'react-router-dom';
+import { request } from '@/request';
 
 const Item = ({ item, currentErp }) => {
   const { moneyFormatter } = useMoney();
   return (
     <Row gutter={[12, 0]} key={item._id}>
-      <Col className="gutter-row" span={11}>
+      <Col className="gutter-row" span={9}>
         <p style={{ marginBottom: 5 }}>
           <strong>{item.itemName}</strong>
         </p>
         <p>{item.description}</p>
+        {item.notes && (
+          <p style={{ color: '#666', fontSize: '12px', marginTop: 5 }}>
+            <strong>Notes:</strong> {item.notes}
+          </p>
+        )}
+      </Col>
+      <Col className="gutter-row" span={3}>
+        <p
+          style={{
+            textAlign: 'right',
+          }}
+        >
+          {item.quantity}
+        </p>
       </Col>
       <Col className="gutter-row" span={4}>
         <p
@@ -44,15 +60,6 @@ const Item = ({ item, currentErp }) => {
         </p>
       </Col>
       <Col className="gutter-row" span={4}>
-        <p
-          style={{
-            textAlign: 'right',
-          }}
-        >
-          {item.quantity}
-        </p>
-      </Col>
-      <Col className="gutter-row" span={5}>
         <p
           style={{
             textAlign: 'right',
@@ -99,6 +106,11 @@ export default function ReadItem({ config, selectedItem }) {
   const [currentErp, setCurrentErp] = useState(selectedItem ?? resetErp);
   const [client, setClient] = useState({});
 
+  // AI Summary state
+  const [aiSummary, setAiSummary] = useState('');
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryModalVisible, setSummaryModalVisible] = useState(false);
+
   useEffect(() => {
     if (currentResult) {
       const { items, invoice, ...others } = currentResult;
@@ -122,6 +134,31 @@ export default function ReadItem({ config, selectedItem }) {
       setClient(currentErp.client);
     }
   }, [currentErp]);
+
+  // Generate AI Summary function
+  const generateSummary = async () => {
+    setSummaryLoading(true);
+    try {
+      const response = await request.post({
+        entity: 'invoice',
+        id: currentErp._id,
+        subEntity: 'note-summary',
+      });
+
+      if (response.data.success) {
+        setAiSummary(response.data.result.summary);
+        setSummaryModalVisible(true);
+        message.success('AI Summary generated successfully!');
+      } else {
+        message.error(response.data.message || 'Failed to generate summary');
+      }
+    } catch (error) {
+      console.error('Error generating AI summary:', error);
+      message.error('Error generating AI summary. Please try again.');
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   return (
     <>
@@ -170,6 +207,15 @@ export default function ReadItem({ config, selectedItem }) {
             icon={<MailOutlined />}
           >
             {translate('Send by Email')}
+          </Button>,
+          <Button
+            key={`${uniqueId()}`}
+            loading={summaryLoading}
+            onClick={generateSummary}
+            icon={<RobotOutlined />}
+            style={{ display: entity === 'invoice' ? 'inline-block' : 'none' }}
+          >
+            {translate('Generate Summary')}
           </Button>,
           <Button
             key={`${uniqueId()}`}
@@ -317,6 +363,29 @@ export default function ReadItem({ config, selectedItem }) {
           </Col>
         </Row>
       </div>
+
+      {/* AI Summary Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <RobotOutlined />
+            {translate('AI Summary')}
+          </div>
+        }
+        open={summaryModalVisible}
+        onOk={() => setSummaryModalVisible(false)}
+        onCancel={() => setSummaryModalVisible(false)}
+        width={800}
+        footer={[
+          <Button key="close" onClick={() => setSummaryModalVisible(false)}>
+            {translate('Close')}
+          </Button>,
+        ]}
+      >
+        <div style={{ whiteSpace: 'pre-wrap', maxHeight: '400px', overflowY: 'auto' }}>
+          {aiSummary}
+        </div>
+      </Modal>
     </>
   );
 }

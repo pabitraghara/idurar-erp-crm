@@ -24,6 +24,13 @@ const routerApp = (entity, controller) => {
     router.route(`/${entity}/convert/:id`).get(catchErrors(controller['convert']));
   }
 
+  // Custom routes for Invoice AI features
+  if (entity === 'invoice') {
+    router
+      .route(`/${entity}/:id/note-summary`)
+      .post(catchErrors(controller['generateNoteSummary']));
+  }
+
   // Custom routes for Query management
   if (entity === 'query') {
     router.route(`/${entity}/:id/notes`).post(catchErrors(controller['addNote']));
