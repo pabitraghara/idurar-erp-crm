@@ -14,9 +14,7 @@ import { IntegrationModule } from './integration/integration.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri:
-          configService.get<string>('MONGODB_URI') ||
-          'mongodb+srv://bdhsbdbshdhd973:plsh5Mok2jqN0Pma@idurar-erp-crm.v4wyxdp.mongodb.net/',
+        uri: configService.get<string>('MONGODB_URI'),
         retryAttempts: 5,
         retryDelay: 1000,
       }),
