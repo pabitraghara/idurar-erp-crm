@@ -363,6 +363,7 @@ const lang = {
   description: 'Description',
   quantity: 'Quantity',
   price: 'Price',
+  notes: 'Notes',
   add_new_tax: 'Add New Tax',
   select_tax_value: 'Select Tax Value',
   add_field: 'Add Field',

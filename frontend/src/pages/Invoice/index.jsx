@@ -79,6 +79,11 @@ export default function Invoice() {
       title: translate('Payment'),
       dataIndex: 'paymentStatus',
     },
+    {
+      title: translate('notes'),
+      dataIndex: 'notes',
+      render: (notes) => notes || '',
+    },
   ];
 
   const Labels = {

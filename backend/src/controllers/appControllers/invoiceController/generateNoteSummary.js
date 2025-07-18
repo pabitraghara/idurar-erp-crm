@@ -15,6 +15,7 @@ const generateNoteSummary = async (Model, req, res) => {
     }
 
     // Check if AI service is available
+    console.log('AI service available:', aiService.isAvailable());
     if (!aiService.isAvailable()) {
       return res.status(503).json({
         success: false,

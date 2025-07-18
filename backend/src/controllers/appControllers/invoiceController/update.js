@@ -67,9 +67,13 @@ const update = async (req, res) => {
     calculate.sub(total, discount) === credit ? 'paid' : credit > 0 ? 'partially' : 'unpaid';
   body['paymentStatus'] = paymentStatus;
 
+  console.log('About to save body:', JSON.stringify(body, null, 2));
+
   const result = await Model.findOneAndUpdate({ _id: req.params.id, removed: false }, body, {
     new: true, // return the new result instead of the old one
   }).exec();
+
+  console.log('Saved result:', JSON.stringify(result, null, 2));
 
   // Returning successfull response
 

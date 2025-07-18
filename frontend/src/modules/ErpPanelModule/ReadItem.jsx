@@ -144,21 +144,33 @@ export default function ReadItem({ config, selectedItem }) {
         id: currentErp._id,
         subEntity: 'note-summary',
       });
-
-      if (response.data.success) {
-        setAiSummary(response.data.result.summary);
+  
+      console.log('AI Summary Response:', response);
+  
+      // If `request.post()` returns just `data`, remove `.data` below
+      const res = response.data || response;
+  
+      if (res.success) {
+        setAiSummary(res.result.summary);
         setSummaryModalVisible(true);
         message.success('AI Summary generated successfully!');
       } else {
-        message.error(response.data.message || 'Failed to generate summary');
+        message.error(res.message || 'Failed to generate summary');
       }
     } catch (error) {
       console.error('Error generating AI summary:', error);
+  
+      // Optional: Log backend response
+      if (error.response) {
+        console.error('Backend error:', error.response);
+      }
+  
       message.error('Error generating AI summary. Please try again.');
     } finally {
       setSummaryLoading(false);
     }
   };
+  
 
   return (
     <>

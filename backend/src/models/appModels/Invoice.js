@@ -1,3 +1,4 @@
+const { required } = require('joi');
 const mongoose = require('mongoose');
 
 const invoiceSchema = new mongoose.Schema({
@@ -93,7 +94,6 @@ const invoiceSchema = new mongoose.Schema({
       },
       notes: {
         type: String,
-        default: '',
       },
     },
   ],
