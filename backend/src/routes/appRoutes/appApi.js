@@ -23,6 +23,13 @@ const routerApp = (entity, controller) => {
   if (entity === 'quote') {
     router.route(`/${entity}/convert/:id`).get(catchErrors(controller['convert']));
   }
+
+  // Custom routes for Query management
+  if (entity === 'query') {
+    router.route(`/${entity}/:id/notes`).post(catchErrors(controller['addNote']));
+    router.route(`/${entity}/:id/notes/:noteId`).delete(catchErrors(controller['removeNote']));
+    router.route(`/${entity}/:id/ai-summary`).post(catchErrors(controller['generateAISummary']));
+  }
 };
 
 routesList.forEach(({ entity, controllerName }) => {

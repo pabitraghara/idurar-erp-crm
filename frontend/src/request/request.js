@@ -99,10 +99,14 @@ const request = {
     }
   },
 
-  delete: async ({ entity, id }) => {
+  delete: async ({ entity, id, subEntity }) => {
     try {
       includeToken();
-      const response = await axios.delete(entity + '/delete/' + id);
+      let url = entity + '/delete/' + id;
+      if (subEntity) {
+        url = `${entity}/${id}/${subEntity}`;
+      }
+      const response = await axios.delete(url);
       successHandler(response, {
         notifyOnSuccess: true,
         notifyOnFailed: true,
@@ -193,11 +197,18 @@ const request = {
     }
   },
 
-  post: async ({ entity, jsonData }) => {
+  post: async ({ entity, id, subEntity, jsonData }) => {
     try {
       includeToken();
-      const response = await axios.post(entity, jsonData);
-
+      let url = entity;
+      if (id && subEntity) {
+        url = `${entity}/${id}/${subEntity}`;
+      }
+      const response = await axios.post(url, jsonData);
+      successHandler(response, {
+        notifyOnSuccess: true,
+        notifyOnFailed: true,
+      });
       return response.data;
     } catch (error) {
       return errorHandler(error);

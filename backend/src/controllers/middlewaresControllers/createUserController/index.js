@@ -1,5 +1,6 @@
 const read = require('./read');
 const updateProfile = require('./updateProfile');
+const list = require('./list');
 
 const updatePassword = require('./updatePassword');
 const updateProfilePassword = require('./updateProfilePassword');
@@ -12,6 +13,7 @@ const createUserController = (userModel) => {
   userController.updateProfilePassword = (req, res) => updateProfilePassword(userModel, req, res);
 
   userController.read = (req, res) => read(userModel, req, res);
+  userController.list = (req, res) => list(userModel, req, res);
 
   return userController;
 };
